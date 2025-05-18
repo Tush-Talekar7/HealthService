@@ -37,7 +37,7 @@ public class ApplicationUserService
 
     public boolean registerUser(ApplicationUser user) {
 
-        Optional<ApplicationUser> user1 = applicationUserRepository.findByUser_name(user.getUser_name());
+        Optional<ApplicationUser> user1 = applicationUserRepository.findByUserName(user.getUser_name());
 
         if(user1.isPresent()) return false;
         
@@ -52,13 +52,13 @@ public class ApplicationUserService
     public Optional<ApplicationUser> getUserDetails()
     {    
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return applicationUserRepository.findByUser_name(username);
+        return applicationUserRepository.findByUserName(username);
     }
 
     public ApplicationUser updateUserDetails(ApplicationUser updatedData) {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
     
-        return applicationUserRepository.findByUser_name(currentUsername)
+        return applicationUserRepository.findByUserName(currentUsername)
             .map(existingUser -> {
                 existingUser.setUser_email(updatedData.getUser_email());
                 existingUser.setUser_mobile(updatedData.getUser_mobile());

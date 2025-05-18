@@ -15,8 +15,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.HealthService.HelthServiceApp.model.ApplicationUser;
-import com.HealthService.HelthServiceApp.security.JwtUtil;
 import com.HealthService.HelthServiceApp.service.UserAuthService;
 
 
@@ -34,7 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException
     {
+        //System.out.println("JwtAuthenticationFilter");
         final String authorizationHeader = request.getHeader("Authorization");
+        //System.out.println("authorizationHeader: " + authorizationHeader);
 
         String username = null;
         String jwtToken = null;
@@ -44,15 +44,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             jwtToken = authorizationHeader.substring(7);
             try {
+
                 username = jwtUtil.getUserNameFromToken(jwtToken);
+                //System.out.println("username: " + username);
             } catch (Exception e) {
-                // TODO: handle exception
+                System.out.println("Exception: " + e.getMessage());
             }
 
         }
         if(username != null && SecurityContextHolder.getContext().getAuthentication()==null)
         {
             UserDetails userDetails = this.userAuthService.loadUserByUsername(username);
+           // System.out.println("userDetails: " + userDetails);
                 if (jwtUtil.validateToken(jwtToken, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -65,6 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
 
         }
+       // System.out.println("JwtAuthenticationFilter chain end");
         chain.doFilter(request, response);
     }
 

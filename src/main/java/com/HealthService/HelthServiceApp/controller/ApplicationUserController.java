@@ -22,11 +22,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.HealthService.HelthServiceApp.model.ApplicationUser;
 import com.HealthService.HelthServiceApp.service.ApplicationUserService;
+import com.HealthService.HelthServiceApp.service.UserAuthService;
 import com.HealthService.HelthServiceApp.security.JwtUtil;
 
 @RestController
@@ -39,20 +41,29 @@ public class ApplicationUserController {
     AuthenticationManager authenticationManager;
 
     @Autowired
+    UserAuthService userAuthService;
+
+    @Autowired
     ApplicationUserService applicationUserService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody ApplicationUser loginRequest)
+    public ResponseEntity<?> loginUser(@RequestBody ApplicationUser user)
     {
         try {
+            System.out.println("Login Controller username: " + user.getUser_name() + " password: " + user.getPassword());
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUser_name(),
-                    loginRequest.getPassword()
+                    user.getUser_name(),
+                    user.getPassword()
                 )
             );
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+           // System.out.println("Login Controller authentication: " + authentication);
+
+           // UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+           UserDetails userDetails = userAuthService.loadUserByUsername(user.getUser_name());
+
+            //System.out.println("Login Controller userDetails: " + userDetails);
             String jwtToken = jwtUtil.generateToken(userDetails);
 
             // userId here is user_name (primary key)
